@@ -3,8 +3,9 @@
 #include "ofMain.h"
 #include "ofxKinect.h"
 
-#define PARTICLE_COUNT 100000
+#define PARTICLE_COUNT 25000
 
+#define DEPTH_MAP_SIZE 307200
 using namespace std;
 
 class testApp : public ofBaseApp {
@@ -30,12 +31,15 @@ public:
         enum particle_state state;
     };
     
+    bool bgInit = true;
+    ofVec3f background[DEPTH_MAP_SIZE];
     struct Particle particles[PARTICLE_COUNT];
     deque<int> inactiveParticles;
     
     ofxKinect kinect;
 	ofEasyCam easyCam;
     
+    void updateBackground();
     void drawDebugText();
     void makeParticleAt(const ofVec3f &pt);
     void updateParticles();
