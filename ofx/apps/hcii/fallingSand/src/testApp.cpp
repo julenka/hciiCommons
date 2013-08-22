@@ -2,17 +2,16 @@
 
 #define DEPTH_MAP_WIDTH 640
 #define DEPTH_MAP_HEIGHT 480
-#define BORN_TIMEOUT_MS 100
+#define BORN_TIMEOUT_MS 600
 #define FALL_TIMEOUT_MS 4000
-#define GRAVITY 5
-#define RANDOM_THRESH 200
+#define GRAVITY 4
+#define RANDOM_THRESH 50
 #define BACKGROUND_SMOOTHING 0.99
 #define BACKGROUND_DISTANCE_THRESH 1000
-#define FLOOR_THRESH 3000
+#define FLOOR_THRESH 2000
 
 void testApp::makeParticleAt(const ofVec3f &pt) {
     if(inactiveParticles.size() == 0) {
-        ofLog(OF_LOG_WARNING, "makeParticlesAt inactiveParticles queue is empty!");
         return;
     }
     int idx = inactiveParticles.front();
@@ -136,7 +135,7 @@ void testApp::update() {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
                 int i = y * DEPTH_MAP_WIDTH + x;
                 ofVec3f p = kinect.getWorldCoordinateAt(x, y);
-                if(p.length() > 5000) continue;
+                if(p.length() > 10000 || p.length() < 100) continue;
                 ofVec3f *bp = &background[i];
                 if(bgInit) {
                     *bp = p;
@@ -162,6 +161,7 @@ void testApp::draw() {
     drawParticles();
     easyCam.end();
     drawDebugText();
+//    kinect.drawDepth(0, 0, 160, 120);
 
 }
 

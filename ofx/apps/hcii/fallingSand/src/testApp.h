@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxKinect.h"
 
-#define PARTICLE_COUNT 25000
+#define PARTICLE_COUNT 30000
 
 #define DEPTH_MAP_SIZE 307200
 using namespace std;
