@@ -40,8 +40,11 @@ public:
     
     ofxKinect kinect;
 	ofEasyCam easyCam;
+    ofCamera camera;
+    ofVec3f center;
     
     void updateBackground();
+    void drawDebugInfo();
     void drawDebugText();
     void makeParticleAt(const ofVec3f &pt);
     void updateParticles();

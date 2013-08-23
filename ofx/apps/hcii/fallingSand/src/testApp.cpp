@@ -10,6 +10,8 @@
 #define BACKGROUND_DISTANCE_THRESH 1000
 #define FLOOR_THRESH 1000
 #define NUM_BG_FRAMES 100
+#define SCENE_RADIUS 3000
+#define CAMERA_PERIOD_MS 10000
 
 void testApp::makeParticleAt(const ofVec3f &pt) {
     if(inactiveParticles.size() == 0) {
@@ -60,8 +62,8 @@ void testApp::drawParticles() {
 	glPointSize(2);
 	ofPushMatrix();
 	// the projected points are 'upside down' and 'backwards'
-	ofScale(-1, -1, -1);
-	ofTranslate(0, 0, -1000); // center the points a bit
+	ofScale(-1, -1, 1);
+	ofTranslate(0, 0, -SCENE_RADIUS); // center the points a bit
 	ofEnableDepthTest();
 	mesh.drawVertices();
 	ofDisableDepthTest();
@@ -69,6 +71,8 @@ void testApp::drawParticles() {
 }
 
 void testApp::updateParticles() {
+    center = ofVec3f(0,0,0);
+    int particleCount = 0;
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         Particle *p = &particles[i];
         long aliveTime = ofGetSystemTime() - p->bornTime;
@@ -98,7 +102,15 @@ void testApp::updateParticles() {
                 break;
                 
         }
+        
+        if(p->state != INACTIVE) {
+            particleCount++;
+            center.x += p->x;
+            center.y += p->y;
+            center.z += p->z;
+        }
     }
+    center /= particleCount;
 }
 
 void testApp::updateBackground() {
@@ -134,6 +146,32 @@ void testApp::drawDebugText() {
     ofPopStyle();
 }
 
+void testApp::drawDebugInfo() {
+    // x is red
+    ofPushStyle();
+    ofSetColor(255,0,0);
+    ofPushMatrix();
+    ofRotate(-90, 0, 0, 1);
+    ofDrawCylinder(0, 0, 10, 50);
+    ofPopMatrix();
+
+    // y is green
+    ofSetColor(0,255,0);
+    ofPushMatrix();
+    ofDrawCylinder(0, 0, 10, 50);
+    ofPopMatrix();
+
+    // z is blue
+    ofSetColor(0,0,255);
+    ofPushMatrix();
+    ofRotate(90, 1, 0, 0);
+    ofDrawCylinder(0, 0, 10, 50);
+    ofPopMatrix();
+
+    
+    ofPopStyle();
+}
+
 //--------------------------------------------------------------
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -158,6 +196,10 @@ void testApp::setup() {
 void testApp::update() {
 	kinect.update();
     updateParticles();
+    // update camera
+    float rad = (float)(ofGetElapsedTimeMillis() % CAMERA_PERIOD_MS) / CAMERA_PERIOD_MS * 2 * PI;
+    camera.setPosition(SCENE_RADIUS * cos(rad), 0, SCENE_RADIUS * sin(rad));
+    camera.lookAt(ofVec3f(0,0,0));
 	// there is a new frame and we are connected
 	if(kinect.isFrameNew()) {
         if(bgFrameCount < NUM_BG_FRAMES) {
@@ -183,16 +225,16 @@ void testApp::update() {
 //--------------------------------------------------------------
 void testApp::draw() {
 	ofBackgroundGradient(ofColor(100,100,100), ofColor::black, OF_GRADIENT_CIRCULAR);
-    easyCam.begin();
+    camera.begin();
     drawParticles();
-    easyCam.end();
+    drawDebugInfo();
+    camera.end();
     kinect.drawDepth(0, 0, 160, 120);
     drawDebugText();
 }
 
 //--------------------------------------------------------------
 void testApp::exit() {
-	kinect.setCameraTiltAngle(0); // zero the tilt on exit
 	kinect.close();
 }
 
