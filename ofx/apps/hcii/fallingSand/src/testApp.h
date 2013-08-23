@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxKinect.h"
 
-#define PARTICLE_COUNT 30000
+#define PARTICLE_COUNT 60000
 
 #define DEPTH_MAP_SIZE 307200
 using namespace std;
@@ -31,8 +31,10 @@ public:
         enum particle_state state;
     };
     
-    bool bgInit = true;
-    ofVec3f background[DEPTH_MAP_SIZE];
+    float backgroundMean[DEPTH_MAP_SIZE];
+    float backgroundStdev[DEPTH_MAP_SIZE];
+    int backgroundCount[DEPTH_MAP_SIZE];
+    int bgFrameCount = 0;
     struct Particle particles[PARTICLE_COUNT];
     deque<int> inactiveParticles;
     

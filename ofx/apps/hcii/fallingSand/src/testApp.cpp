@@ -5,10 +5,11 @@
 #define BORN_TIMEOUT_MS 600
 #define FALL_TIMEOUT_MS 4000
 #define GRAVITY 4
-#define RANDOM_THRESH 50
+#define RANDOM_THRESH 100
 #define BACKGROUND_SMOOTHING 0.99
 #define BACKGROUND_DISTANCE_THRESH 1000
-#define FLOOR_THRESH 2000
+#define FLOOR_THRESH 1000
+#define NUM_BG_FRAMES 100
 
 void testApp::makeParticleAt(const ofVec3f &pt) {
     if(inactiveParticles.size() == 0) {
@@ -59,7 +60,7 @@ void testApp::drawParticles() {
 	glPointSize(2);
 	ofPushMatrix();
 	// the projected points are 'upside down' and 'backwards'
-	ofScale(1, -1, -1);
+	ofScale(-1, -1, -1);
 	ofTranslate(0, 0, -1000); // center the points a bit
 	ofEnableDepthTest();
 	mesh.drawVertices();
@@ -100,17 +101,46 @@ void testApp::updateParticles() {
     }
 }
 
+void testApp::updateBackground() {
+    bgFrameCount++;
+    for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
+        for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
+            int i = y * DEPTH_MAP_WIDTH + x;
+            float depth = kinect.getDistanceAt(x, y);
+            if(depth <= 0 ) continue;
+            backgroundCount[i]++;
+            backgroundMean[i] += depth;
+            // e[(x - xbar)^2)] = e[x^2] - e[x]^2
+            backgroundStdev[i] += (depth * depth);
+        }
+    }
+    if(bgFrameCount == NUM_BG_FRAMES) {
+        for(int i = 0; i < DEPTH_MAP_SIZE; i++) {
+            if(backgroundCount[i] == 0) continue;
+            backgroundMean[i] /= backgroundCount[i];
+            backgroundStdev[i] /= backgroundCount[i];
+            backgroundStdev[i] -= backgroundMean[i] * backgroundMean[i];
+            backgroundStdev[i] = sqrt(backgroundStdev[i]);
+        }
+    }
+}
+
 void testApp::drawDebugText() {
+    ofPushStyle();
     char buf[100];
-    sprintf(buf, "inactive size: %ld\nfps: %f", inactiveParticles.size(), ofGetFrameRate());
-    ofSetColor(255, 255, 255);
+    sprintf(buf, "inactive size: %ld\nfps: %f\nbg: %d/%d", inactiveParticles.size(), ofGetFrameRate(), bgFrameCount, NUM_BG_FRAMES);
+    ofSetColor(255, 0, 255);
     ofDrawBitmapString(buf, ofPoint(10,10));
+    ofPopStyle();
 }
 
 //--------------------------------------------------------------
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
-    
+    for(int i = 0; i < DEPTH_MAP_SIZE; i++) {
+        backgroundMean[i] = 0;
+        backgroundStdev [i] = 0;
+    }
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         inactiveParticles.push_back(i);
         particles[i].state = INACTIVE;
@@ -127,42 +157,37 @@ void testApp::setup() {
 //--------------------------------------------------------------
 void testApp::update() {
 	kinect.update();
-    if(ofGetElapsedTimeMillis() < 3000) return;
     updateParticles();
 	// there is a new frame and we are connected
 	if(kinect.isFrameNew()) {
+        if(bgFrameCount < NUM_BG_FRAMES) {
+            updateBackground();
+            return;
+        }
         for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
                 int i = y * DEPTH_MAP_WIDTH + x;
                 ofVec3f p = kinect.getWorldCoordinateAt(x, y);
-                if(p.length() > 10000 || p.length() < 100) continue;
-                ofVec3f *bp = &background[i];
-                if(bgInit) {
-                    *bp = p;
-                } else {
-                    *bp = *bp * BACKGROUND_SMOOTHING + p * (1 - BACKGROUND_SMOOTHING);
-                    if(bp->distance(p) > BACKGROUND_DISTANCE_THRESH && ofRandom(0, RANDOM_THRESH) <= 1) {
-                        makeParticleAt(p);
-                    }
+                float depth = kinect.getDistanceAt(x, y);
+                if(depth < 500) continue;
+                if(abs(depth - backgroundMean[i]) < 100) continue;
+                if(ofRandom(0, RANDOM_THRESH) <= 1) {
+                    makeParticleAt(p);
                 }
-                
             }
         }
-        if(bgInit) bgInit = false;
 	}
 
-	
 }
 
 //--------------------------------------------------------------
 void testApp::draw() {
-	ofBackgroundGradient(ofColor(20,20,20), ofColor::black, OF_GRADIENT_CIRCULAR);
+	ofBackgroundGradient(ofColor(100,100,100), ofColor::black, OF_GRADIENT_CIRCULAR);
     easyCam.begin();
     drawParticles();
     easyCam.end();
+    kinect.drawDepth(0, 0, 160, 120);
     drawDebugText();
-//    kinect.drawDepth(0, 0, 160, 120);
-
 }
 
 //--------------------------------------------------------------
