@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxKinect.h"
-
+#include "Particle.h"
 #define PARTICLE_COUNT 60000
 
 #define DEPTH_MAP_SIZE 307200
@@ -10,32 +10,11 @@ using namespace std;
 
 class testApp : public ofBaseApp {
 public:
-    enum particle_state {
-        INACTIVE,
-        BORN,
-        FALLING,
-        
-        PARTICLE_STATE_COUNT,
-    };
-	struct Particle {
-        float x;
-        float y;
-        float z;
-        float vx;
-        float vy;
-        float vz;
-        float ax;
-        float ay;
-        float az;
-        unsigned long long bornTime;
-        enum particle_state state;
-    };
-    
     float backgroundMean[DEPTH_MAP_SIZE];
     float backgroundStdev[DEPTH_MAP_SIZE];
     int backgroundCount[DEPTH_MAP_SIZE];
     int bgFrameCount = 0;
-    struct Particle particles[PARTICLE_COUNT];
+    Particle particles[PARTICLE_COUNT];
     deque<int> inactiveParticles;
     
     ofxKinect kinect;

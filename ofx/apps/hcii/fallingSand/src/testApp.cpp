@@ -2,13 +2,10 @@
 
 #define DEPTH_MAP_WIDTH 640
 #define DEPTH_MAP_HEIGHT 480
-#define BORN_TIMEOUT_MS 600
-#define FALL_TIMEOUT_MS 4000
-#define GRAVITY 4
+
 #define RANDOM_THRESH 100
 #define BACKGROUND_SMOOTHING 0.99
 #define BACKGROUND_DISTANCE_THRESH 1000
-#define FLOOR_THRESH 1000
 #define NUM_BG_FRAMES 100
 #define SCENE_RADIUS 3000
 #define CAMERA_PERIOD_MS 10000
@@ -19,16 +16,12 @@ void testApp::makeParticleAt(const ofVec3f &pt) {
     }
     int idx = inactiveParticles.front();
     Particle *p = &particles[idx];
-    p->x = pt.x + ofRandom( -100, 100);
-    p->y = pt.y + ofRandom( -100, 100);
-    p->z = pt.z + ofRandom( -100, 100);
-    p->vx = 0;
-    p->vy = 0;
-    p->vz = 0;
-    p->ax = 0;
-    p->ay = 0;
-    p->az = 0;
-    p->state = BORN;
+    p->location.x = pt.x + ofRandom( -100, 100);
+    p->location.y = pt.y + ofRandom( -100, 100);
+    p->location.z = pt.z + ofRandom( -100, 100);
+    p->velocity = ofVec3f(0);
+    p->acceleration = ofVec3f(0);
+    p->state = Particle::BORN;
     p->bornTime = ofGetSystemTime();
     inactiveParticles.pop_front();
 }
@@ -36,28 +29,8 @@ void testApp::makeParticleAt(const ofVec3f &pt) {
 void testApp::drawParticles() {
 	ofMesh mesh;
 	mesh.setMode(OF_PRIMITIVE_POINTS);
-	int step = 2;
     for(int i = 0; i < PARTICLE_COUNT; i++) {
-        Particle *p = &particles[i];
-        float pct;
-        int gray;
-        switch(p->state) {
-            case INACTIVE:
-                break;
-            case BORN:
-                mesh.addColor(ofColor(255,255,255));
-                mesh.addVertex(ofVec3f(p->x, p->y, p->z));
-                break;
-            case FALLING:
-                pct = ((ofGetSystemTime() - p->bornTime) / (float)(FALL_TIMEOUT_MS - BORN_TIMEOUT_MS));
-                if(pct > 1) pct = 1;
-                gray = (int)(255 * (1 - pct));
-                mesh.addColor(ofColor(gray));
-                mesh.addVertex(ofVec3f(p->x, p->y, p->z));
-                break;
-            default:
-                break;
-        }
+        particles[i].addToMesh(mesh);
     }
 	glPointSize(2);
 	ofPushMatrix();
@@ -71,43 +44,17 @@ void testApp::drawParticles() {
 }
 
 void testApp::updateParticles() {
-    center = ofVec3f(0,0,0);
+    center = ofVec3f(0);
     int particleCount = 0;
     for(int i = 0; i < PARTICLE_COUNT; i++) {
-        Particle *p = &particles[i];
-        long aliveTime = ofGetSystemTime() - p->bornTime;
-        switch (p->state) {
-            case BORN:
-                if(aliveTime > BORN_TIMEOUT_MS) {
-                    p->state = FALLING;
-                    p->ay = GRAVITY;
-                }
-                break;
-            case FALLING:
-                if(aliveTime > FALL_TIMEOUT_MS) {
-                    p->state = INACTIVE;
-                    inactiveParticles.push_back(i);
-                } else {
-                    if(p->y < FLOOR_THRESH) {
-                        p->vx += p ->ax;
-                        p->vy += p->ay;
-                        p->vz += p->az;
-                        p->x += p->vx;
-                        p->y += p->vy;
-                        p->z += p->vz;
-                    }
-                }
-                break;
-            default:
-                break;
-                
-        }
-        
-        if(p->state != INACTIVE) {
+        Particle::particle_state oldState = particles[i].state;
+        particles[i].update();
+        Particle::particle_state newState = particles[i].state;
+        if(particles[i].state == Particle::INACTIVE && oldState == Particle::FALLING)
+            inactiveParticles.push_back(i);
+        if(newState != Particle::INACTIVE) {
             particleCount++;
-            center.x += p->x;
-            center.y += p->y;
-            center.z += p->z;
+            center += particles[i].location;
         }
     }
     center /= particleCount;
@@ -181,7 +128,7 @@ void testApp::setup() {
     }
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         inactiveParticles.push_back(i);
-        particles[i].state = INACTIVE;
+        particles[i].state = Particle::INACTIVE;
     }
     
 	kinect.setRegistration(true);
