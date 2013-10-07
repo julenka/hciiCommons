@@ -13,6 +13,7 @@
 		255a7b680dc81e543c875794 /* usb_libusb10.c in Sources */ = {isa = PBXBuildFile; fileRef = 28f9707464ba3ff98e05096c /* usb_libusb10.c */; };
 		49beeb2dfa5319d55aa6899f /* tilt.c in Sources */ = {isa = PBXBuildFile; fileRef = bf2f2aa872288d30f53983ef /* tilt.c */; };
 		612E4F3817D606D500CFAC8A /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 612E4F3617D606D500CFAC8A /* Particle.cpp */; };
+		61A8E676180227190028ADC3 /* Background.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 61A8E674180227190028ADC3 /* Background.cpp */; };
 		63020f16c7e8ded980111241 /* ofxCvImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = c6151136d101f857dae12722 /* ofxCvImage.cpp */; };
 		686b0df6249b52e1a85b39ec /* ofxKinect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ed9ffc7d08da194c2ce7d09 /* ofxKinect.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -109,6 +110,9 @@
 		612E4F3617D606D500CFAC8A /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
 		612E4F3717D606D500CFAC8A /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		61339778c58d921474b5729e /* features2d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = features2d.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/features2d/features2d.hpp; sourceTree = SOURCE_ROOT; };
+		61A8E674180227190028ADC3 /* Background.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Background.cpp; sourceTree = "<group>"; };
+		61A8E675180227190028ADC3 /* Background.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Background.h; sourceTree = "<group>"; };
+		61A8E677180228AD0028ADC3 /* constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = constants.h; sourceTree = "<group>"; };
 		665780a3005496e3a4a0d9ef /* compat.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = compat.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/legacy/compat.hpp; sourceTree = SOURCE_ROOT; };
 		67af0e794fa186dd25454cc9 /* calib3d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = calib3d.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/calib3d/calib3d.hpp; sourceTree = SOURCE_ROOT; };
 		6b907cfbb1b0fede76c41aa0 /* heap.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = heap.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/heap.h; sourceTree = SOURCE_ROOT; };
@@ -540,6 +544,9 @@
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				612E4F3617D606D500CFAC8A /* Particle.cpp */,
 				612E4F3717D606D500CFAC8A /* Particle.h */,
+				61A8E674180227190028ADC3 /* Background.cpp */,
+				61A8E675180227190028ADC3 /* Background.h */,
+				61A8E677180228AD0028ADC3 /* constants.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -785,6 +792,7 @@
 				e212c821d1064b92dd953a42 /* ofxCvHaarFinder.cpp in Sources */,
 				63020f16c7e8ded980111241 /* ofxCvImage.cpp in Sources */,
 				612E4F3817D606D500CFAC8A /* Particle.cpp in Sources */,
+				61A8E676180227190028ADC3 /* Background.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

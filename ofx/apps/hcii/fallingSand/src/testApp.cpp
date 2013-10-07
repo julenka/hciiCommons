@@ -1,12 +1,5 @@
 #include "testApp.h"
 
-#define DEPTH_MAP_WIDTH 640
-#define DEPTH_MAP_HEIGHT 480
-
-#define RANDOM_THRESH 100
-#define BACKGROUND_SMOOTHING 0.99
-#define BACKGROUND_DISTANCE_THRESH 1000
-#define NUM_BG_FRAMES 100
 
 void testApp::makeParticleAt(const ofVec3f &pt) {
     if(inactiveParticles.size() == 0) {
@@ -51,34 +44,10 @@ void testApp::updateParticles() {
     }
 }
 
-void testApp::updateBackground() {
-    bgFrameCount++;
-    for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
-        for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
-            int i = y * DEPTH_MAP_WIDTH + x;
-            float depth = kinect.getDistanceAt(x, y);
-            if(depth <= 0 ) continue;
-            backgroundCount[i]++;
-            backgroundMean[i] += depth;
-            // e[(x - xbar)^2)] = e[x^2] - e[x]^2
-            backgroundStdev[i] += (depth * depth);
-        }
-    }
-    if(bgFrameCount == NUM_BG_FRAMES) {
-        for(int i = 0; i < DEPTH_MAP_SIZE; i++) {
-            if(backgroundCount[i] == 0) continue;
-            backgroundMean[i] /= backgroundCount[i];
-            backgroundStdev[i] /= backgroundCount[i];
-            backgroundStdev[i] -= backgroundMean[i] * backgroundMean[i];
-            backgroundStdev[i] = sqrt(backgroundStdev[i]);
-        }
-    }
-}
-
 void testApp::drawDebugText() {
     ofPushStyle();
     char buf[100];
-    sprintf(buf, "inactive size: %ld\nfps: %f\nbg: %d/%d", inactiveParticles.size(), ofGetFrameRate(), bgFrameCount, NUM_BG_FRAMES);
+    sprintf(buf, "inactive size: %ld\nfps: %f\nbg: %d/%d", inactiveParticles.size(), ofGetFrameRate(), background.getBgFrameCount(), NUM_BG_FRAMES);
     ofSetColor(255, 0, 255);
     ofDrawBitmapString(buf, ofPoint(10,10));
     ofPopStyle();
@@ -87,10 +56,8 @@ void testApp::drawDebugText() {
 //--------------------------------------------------------------
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
-    for(int i = 0; i < DEPTH_MAP_SIZE; i++) {
-        backgroundMean[i] = 0;
-        backgroundStdev [i] = 0;
-    }
+    background.setup();
+    
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         inactiveParticles.push_back(i);
         particles[i].state = Particle::INACTIVE;
@@ -110,17 +77,16 @@ void testApp::update() {
     updateParticles();
 	// there is a new frame and we are connected
 	if(kinect.isFrameNew()) {
-        if(bgFrameCount < NUM_BG_FRAMES) {
-            updateBackground();
+        if(background.getBgFrameCount() < NUM_BG_FRAMES) {
+            background.update(kinect);
             return;
         }
+        background.update(kinect);
         for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
                 int i = y * DEPTH_MAP_WIDTH + x;
                 ofVec3f p = kinect.getWorldCoordinateAt(x, y);
-                float depth = kinect.getDistanceAt(x, y);
-                if(depth < 500) continue;
-                if(abs(depth - backgroundMean[i]) < 100) continue;
+                if(background.isBackground(kinect, x, y))continue;
                 if(ofRandom(0, RANDOM_THRESH) <= 1) {
                     makeParticleAt(p);
                 }
@@ -137,6 +103,7 @@ void testApp::draw() {
     drawParticles();
     easyCam.end();
     kinect.drawDepth(0, 0, 160, 120);
+    background.drawMeanBg(0, 130, 160, 120);
     drawDebugText();
 }
 

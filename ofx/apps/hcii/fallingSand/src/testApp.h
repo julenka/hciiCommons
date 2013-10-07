@@ -1,26 +1,21 @@
 #pragma once
 
+#include "constants.h"
 #include "ofMain.h"
 #include "ofxKinect.h"
 #include "Particle.h"
-#define PARTICLE_COUNT 60000
-
-#define DEPTH_MAP_SIZE 307200
+#include "Background.h"
 using namespace std;
 
 class testApp : public ofBaseApp {
 public:
-    float backgroundMean[DEPTH_MAP_SIZE];
-    float backgroundStdev[DEPTH_MAP_SIZE];
-    int backgroundCount[DEPTH_MAP_SIZE];
-    int bgFrameCount = 0;
     Particle particles[PARTICLE_COUNT];
     deque<int> inactiveParticles;
     
     ofxKinect kinect;
 	ofEasyCam easyCam;
+    Background background;
     
-    void updateBackground();
     void drawDebugText();
     void makeParticleAt(const ofVec3f &pt);
     void updateParticles();
