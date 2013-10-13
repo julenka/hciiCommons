@@ -7,10 +7,11 @@
 //
 
 #include "Particle.h"
-#define GRAVITY 4
+#include "constants.h"
+#define GRAVITY -4
 #define FALL_TIMEOUT_MS 4000
 #define BORN_TIMEOUT_MS 600
-#define FLOOR_THRESH 1000
+
 
 void Particle::update() {
     long aliveTime = ofGetSystemTime() - bornTime;
@@ -26,7 +27,7 @@ void Particle::update() {
                 state = INACTIVE;
             } else {
                 // TODO: better floor detection
-                if(location.y < FLOOR_THRESH) {
+                if(location.y > FLOOR_THRESH) {
                     velocity += acceleration;
                     location += velocity;
                 }

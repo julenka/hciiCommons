@@ -20,4 +20,6 @@
 #define PARTICLE_COUNT 60000
 #define DEPTH_MAP_SIZE 307200
 
+#define FLOOR_THRESH -1000
+
 #endif

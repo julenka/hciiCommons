@@ -16,11 +16,16 @@ public:
 	ofEasyCam easyCam;
     Background background;
     
+    int cameraDirection;
+    
     void drawDebugText();
     void makeParticleAt(const ofVec3f &pt);
     void updateParticles();
     void drawParticles();
 	
+    void drawFloor();
+    
+    
     // ofx stuff below
 	void setup();
 	void update();
@@ -28,6 +33,7 @@ public:
 	void exit();
 	
 	void keyPressed(int key);
+    void keyReleased(int key);
 	void mouseDragged(int x, int y, int button);
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);

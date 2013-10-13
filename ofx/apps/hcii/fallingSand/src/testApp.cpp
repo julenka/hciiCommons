@@ -25,9 +25,9 @@ void testApp::drawParticles() {
     }
 	glPointSize(2);
 	ofPushMatrix();
+    // TODO: clean these up.
 	// the projected points are 'upside down' and 'backwards'
-	ofScale(-1, -1, -1);
-	ofTranslate(0, 0, -1000); // center the points a bit
+	ofTranslate(0, 0, 0); // center the points a bit
 	ofEnableDepthTest();
 	mesh.drawVertices();
 	ofDisableDepthTest();
@@ -53,6 +53,32 @@ void testApp::drawDebugText() {
     ofPopStyle();
 }
 
+void testApp::drawFloor() {
+    ofPushStyle();
+    ofPushMatrix();
+    int sideLengthMM = 5000;
+    int minX = -sideLengthMM / 2;
+    int maxX = sideLengthMM / 2;
+    int minZ = 500;
+    int maxZ = minZ + sideLengthMM;
+    int gridSpacingMM = 100;
+    // grid of size 1m
+
+    // z goes from 1000mm to 2000mm
+    
+    for(int z = minZ; z <= maxZ; z+= gridSpacingMM) {
+        ofSetColor(ofColor::fromHsb(ofMap(z, minZ, maxZ, 0, 180, true), 255, 255));
+        ofLine(minX, FLOOR_THRESH, z, maxX, FLOOR_THRESH, z);
+    }
+    for(int x = minX; x <= maxX; x += gridSpacingMM) {
+        ofSetColor(ofColor::fromHsb(ofMap(x, minX, maxX, 0, 180, true), 255, 255));
+        ofLine(x, FLOOR_THRESH, minZ, x, FLOOR_THRESH, maxZ);
+    }
+    // x goes from -500mm to 500mm
+    ofPopMatrix();
+    ofPopStyle();
+}
+
 //--------------------------------------------------------------
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -66,9 +92,12 @@ void testApp::setup() {
 	kinect.setRegistration(true);
 	kinect.init(false, false); // disable video image (faster fps)
 	kinect.open();		// opens first available kinect
-	
+
+    easyCam.setPosition(0,0,0);
+    easyCam.lookAt(ofVec3f(0,0,1), ofVec3f(0,1,0));
+
 	ofSetFrameRate(60);
-		
+    cameraDirection = 0;
 }
 
 //--------------------------------------------------------------
@@ -86,6 +115,8 @@ void testApp::update() {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
                 int i = y * DEPTH_MAP_WIDTH + x;
                 ofVec3f p = kinect.getWorldCoordinateAt(x, y);
+                // camera gives us things upside down for some reason.
+                p.y *= -1;
                 if(background.isBackground(kinect, x, y))continue;
                 if(ofRandom(0, RANDOM_THRESH) <= 1) {
                     makeParticleAt(p);
@@ -93,14 +124,32 @@ void testApp::update() {
             }
         }
 	}
+    ofVec3f cameraPos = easyCam.getPosition();
+    int speed = 20;
+    switch (cameraDirection) {
+        case OF_KEY_LEFT:
+            cameraPos.x += speed;
+            break;
+        case OF_KEY_RIGHT:
+            cameraPos.x -= speed;
+            break;
+        case OF_KEY_UP:
+            cameraPos.y+=speed;
+        case OF_KEY_DOWN:
+            cameraPos.y-=speed;
+        default:
+            break;
+    }
+    easyCam.setPosition(cameraPos);
 
 }
 
 //--------------------------------------------------------------
 void testApp::draw() {
-	ofBackgroundGradient(ofColor(100,100,100), ofColor::black, OF_GRADIENT_CIRCULAR);
+	ofBackgroundGradient(ofColor(10,10,10), ofColor::black, OF_GRADIENT_CIRCULAR);
     easyCam.begin();
     drawParticles();
+    drawFloor();
     easyCam.end();
     kinect.drawDepth(0, 0, 160, 120);
     background.drawMeanBg(0, 130, 160, 120);
@@ -116,6 +165,28 @@ void testApp::exit() {
 //--------------------------------------------------------------
 void testApp::keyPressed (int key) {
 	switch (key) {
+        case OF_KEY_LEFT:
+        case OF_KEY_RIGHT:
+        case OF_KEY_UP:
+        case OF_KEY_DOWN:
+            cameraDirection = key;
+            break;
+        default:
+            break;
+    }
+}
+
+//--------------------------------------------------------------
+void testApp::keyReleased (int key) {
+	switch (key) {
+        case OF_KEY_LEFT:
+        case OF_KEY_RIGHT:
+        case OF_KEY_UP:
+        case OF_KEY_DOWN:
+            cameraDirection = 0;
+            break;
+        default:
+            break;
     }
 }
 
