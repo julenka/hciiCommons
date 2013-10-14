@@ -45,12 +45,12 @@ void Particle::addToMesh(ofMesh & mesh) {
         case INACTIVE:
             break;
         case BORN:
-            mesh.addColor(ofColor(baseColor.getLightness()));
+            mesh.addColor(ofColor(baseColor));
             mesh.addVertex(location);
             break;
         case FALLING:
             pct = 1 - ofMap(ofGetSystemTime() - bornTime, BORN_TIMEOUT_MS, FALL_TIMEOUT_MS, 0,1,true);
-            mesh.addColor(ofColor(baseColor.getLightness() * pct));
+            mesh.addColor(ofColor(baseColor * pct));
             mesh.addVertex(location);
             break;
         default:

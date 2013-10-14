@@ -24,7 +24,7 @@ public:
     void drawParticles();
 	
     void drawFloor();
-    
+    ofColor getParticleColor();
     
     // ofx stuff below
 	void setup();

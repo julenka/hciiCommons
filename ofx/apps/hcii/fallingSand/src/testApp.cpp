@@ -1,5 +1,9 @@
 #include "testApp.h"
 
+ofColor testApp::getParticleColor() {
+    int seconds = ofGetElapsedTimeMillis();
+    return ofColor::fromHsb(ofMap(seconds % 60000, 0, 60000, 0, 255), ofMap(seconds % 120000, 0, 120000, 0, 255), 255);
+}
 
 void testApp::makeParticleAt(const ofVec3f &pt, ofColor c) {
     if(inactiveParticles.size() == 0) {
@@ -36,9 +40,14 @@ void testApp::drawParticles() {
 }
 
 void testApp::updateParticles() {
+    // cycle through hue every minute
+    
+    ofColor particleColor = getParticleColor();
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         Particle::particle_state oldState = particles[i].state;
         particles[i].update();
+        
+        particles[i].baseColor = particleColor;
         Particle::particle_state newState = particles[i].state;
         if(particles[i].state == Particle::INACTIVE && oldState == Particle::FALLING)
             inactiveParticles.push_back(i);
@@ -108,7 +117,8 @@ void testApp::update() {
     int particleIndex;
     updateParticles();
 	// there is a new frame and we are connected
-	if(kinect.isFrameNew()) {        
+	if(kinect.isFrameNew()) {
+        ofColor particleColr = getParticleColor();
         particleIndex = 0;
         background.update(kinect);
         for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
@@ -120,7 +130,7 @@ void testApp::update() {
                 p.y *= -1;
                 if(background.isBackground(kinect, x, y))continue;
                 if(ofRandom(0, RANDOM_THRESH) <= 1) {
-                    makeParticleAt(p, ofColor::white);
+                    makeParticleAt(p, particleColr);
                 }
             }
         }
