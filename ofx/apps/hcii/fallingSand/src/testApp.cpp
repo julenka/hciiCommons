@@ -84,6 +84,7 @@ void testApp::drawFloor() {
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
     background.setup();
+    background.setSmoothFactor(0.99);
     
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         inactiveParticles.push_back(i);
@@ -107,14 +108,9 @@ void testApp::update() {
     int particleIndex;
     updateParticles();
 	// there is a new frame and we are connected
-	if(kinect.isFrameNew()) {
-        if(background.getBgFrameCount() < NUM_BG_FRAMES) {
-            background.update(kinect);
-            return;
-        }
-        
+	if(kinect.isFrameNew()) {        
         particleIndex = 0;
-//        background.update(kinect);
+        background.update(kinect);
         for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
                 if (particleIndex >= PARTICLE_COUNT) continue;
@@ -158,7 +154,7 @@ void testApp::draw() {
 
     easyCam.end();
     kinect.drawDepth(0, 0, 160, 120);
-    background.drawMeanBg(0, 130, 160, 120);
+    background.drawSmoothedBg(0, 130, 160, 120);
     drawDebugText();
 }
 
