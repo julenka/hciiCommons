@@ -8,9 +8,9 @@
 
 #include "Particle.h"
 #include "constants.h"
-#define GRAVITY -4
-#define FALL_TIMEOUT_MS 4000
-#define BORN_TIMEOUT_MS 600
+#define GRAVITY -10
+#define FALL_TIMEOUT_MS 2000
+#define BORN_TIMEOUT_MS 0
 
 
 void Particle::update() {
@@ -41,19 +41,16 @@ void Particle::update() {
 
 void Particle::addToMesh(ofMesh & mesh) {
     float pct;
-    int gray;
     switch(state) {
         case INACTIVE:
             break;
         case BORN:
-            mesh.addColor(ofColor(255,255,255));
+            mesh.addColor(ofColor(baseColor.getLightness()));
             mesh.addVertex(location);
             break;
         case FALLING:
-            pct = ((ofGetSystemTime() - bornTime) / (float)(FALL_TIMEOUT_MS - BORN_TIMEOUT_MS));
-            if(pct > 1) pct = 1;
-            gray = (int)(255 * (1 - pct));
-            mesh.addColor(ofColor(gray));
+            pct = 1 - ofMap(ofGetSystemTime() - bornTime, BORN_TIMEOUT_MS, FALL_TIMEOUT_MS, 0,1,true);
+            mesh.addColor(ofColor(baseColor.getLightness() * pct));
             mesh.addVertex(location);
             break;
         default:

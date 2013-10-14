@@ -17,6 +17,7 @@ public:
     ofVec3f location;
     ofVec3f velocity;
     ofVec3f acceleration;
+    ofColor baseColor;
     unsigned long long bornTime;
     enum particle_state {
         INACTIVE,

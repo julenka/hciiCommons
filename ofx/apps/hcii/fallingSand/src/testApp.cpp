@@ -1,7 +1,7 @@
 #include "testApp.h"
 
 
-void testApp::makeParticleAt(const ofVec3f &pt) {
+void testApp::makeParticleAt(const ofVec3f &pt, ofColor c) {
     if(inactiveParticles.size() == 0) {
         return;
     }
@@ -14,6 +14,7 @@ void testApp::makeParticleAt(const ofVec3f &pt) {
     p->acceleration = ofVec3f(0);
     p->state = Particle::BORN;
     p->bornTime = ofGetSystemTime();
+    p->baseColor = c;
     inactiveParticles.pop_front();
 }
 
@@ -103,6 +104,7 @@ void testApp::setup() {
 //--------------------------------------------------------------
 void testApp::update() {
 	kinect.update();
+    int particleIndex;
     updateParticles();
 	// there is a new frame and we are connected
 	if(kinect.isFrameNew()) {
@@ -110,16 +112,19 @@ void testApp::update() {
             background.update(kinect);
             return;
         }
-        background.update(kinect);
+        
+        particleIndex = 0;
+//        background.update(kinect);
         for(int y = 0; y < DEPTH_MAP_HEIGHT; y++) {
             for(int x = 0; x < DEPTH_MAP_WIDTH; x++) {
+                if (particleIndex >= PARTICLE_COUNT) continue;
                 int i = y * DEPTH_MAP_WIDTH + x;
                 ofVec3f p = kinect.getWorldCoordinateAt(x, y);
                 // camera gives us things upside down for some reason.
                 p.y *= -1;
                 if(background.isBackground(kinect, x, y))continue;
                 if(ofRandom(0, RANDOM_THRESH) <= 1) {
-                    makeParticleAt(p);
+                    makeParticleAt(p, ofColor::white);
                 }
             }
         }
@@ -148,8 +153,9 @@ void testApp::update() {
 void testApp::draw() {
 	ofBackgroundGradient(ofColor(10,10,10), ofColor::black, OF_GRADIENT_CIRCULAR);
     easyCam.begin();
-    drawParticles();
     drawFloor();
+    drawParticles();
+
     easyCam.end();
     kinect.drawDepth(0, 0, 160, 120);
     background.drawMeanBg(0, 130, 160, 120);

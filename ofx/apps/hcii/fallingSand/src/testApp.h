@@ -19,7 +19,7 @@ public:
     int cameraDirection;
     
     void drawDebugText();
-    void makeParticleAt(const ofVec3f &pt);
+    void makeParticleAt(const ofVec3f &pt, ofColor c);
     void updateParticles();
     void drawParticles();
 	
