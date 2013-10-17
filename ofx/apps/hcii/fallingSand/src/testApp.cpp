@@ -1,8 +1,7 @@
 #include "testApp.h"
 
 ofColor testApp::getParticleColor() {
-    int seconds = ofGetElapsedTimeMillis();
-    return ofColor::fromHsb(ofMap(seconds % 60000, 0, 60000, 0, 255), ofMap(seconds % 120000, 0, 120000, 0, 255), 255);
+    return ofColor::white;
 }
 
 void testApp::makeParticleAt(const ofVec3f &pt, ofColor c) {
