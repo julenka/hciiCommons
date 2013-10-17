@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>06F1C81F-743B-45A1-960E-FA1EDE5A4AD0</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ideoKinect</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>E9B763B2-453F-4C88-ABF2-586145707FF3</key>
+		<string>ssh://github.com/julenka/hciiCommons.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ofx/apps/ideo/ideoKinect/ideoKinect.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>E9B763B2-453F-4C88-ABF2-586145707FF3</key>
+		<string>../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/julenka/hciiCommons.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>E9B763B2-453F-4C88-ABF2-586145707FF3</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E9B763B2-453F-4C88-ABF2-586145707FF3</string>
+			<key>IDESourceControlWCCName</key>
+			<string>hciiCommons</string>
+		</dict>
+	</array>
+</dict>
+</plist>
