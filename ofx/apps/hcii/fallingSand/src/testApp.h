@@ -40,5 +40,8 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 	
+private:
+    ofTrueTypeFont verdana18;
+    ofTrueTypeFont verdana48;
 	
 };

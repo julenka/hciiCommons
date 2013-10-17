@@ -58,9 +58,14 @@ void testApp::updateParticles() {
 void testApp::drawDebugText() {
     ofPushStyle();
     char buf[100];
-    sprintf(buf, "inactive size: %ld\nfps: %f\nbg: %d/%d", inactiveParticles.size(), ofGetFrameRate(), background.getBgFrameCount(), NUM_BG_FRAMES);
+    sprintf(buf, "inactive size: %ld", inactiveParticles.size(), NUM_BG_FRAMES);
     ofSetColor(255, 0, 255);
-    ofDrawBitmapString(buf, ofPoint(10,10));
+    
+    verdana18.drawString(buf, 10, 40);
+    
+    sprintf(buf, "%.2f", ofGetFrameRate());
+    ofSetColor(255,0,0);
+    verdana48.drawString(buf, ofGetWidth() / 2, ofGetHeight() / 2);
     ofPopStyle();
 }
 
@@ -110,6 +115,9 @@ void testApp::setup() {
 
 	ofSetFrameRate(60);
     cameraDirection = 0;
+    
+    verdana18.loadFont("verdana.ttf", 18);
+    verdana48.loadFont("verdana.ttf", 48);
 }
 
 //--------------------------------------------------------------
@@ -165,7 +173,7 @@ void testApp::draw() {
 
     easyCam.end();
     kinect.drawDepth(0, 0, 160, 120);
-    background.drawSmoothedBg(0, 130, 160, 120);
+//    background.drawSmoothedBg(0, 130, 160, 120);
     drawDebugText();
 }
 
