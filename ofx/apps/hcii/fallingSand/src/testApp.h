@@ -9,6 +9,7 @@ using namespace std;
 
 class testApp : public ofBaseApp {
 public:
+
     Particle particles[PARTICLE_COUNT];
     deque<int> inactiveParticles;
     

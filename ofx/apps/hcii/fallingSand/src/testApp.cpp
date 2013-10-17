@@ -25,8 +25,9 @@ void testApp::makeParticleAt(const ofVec3f &pt, ofColor c) {
 void testApp::drawParticles() {
 	ofMesh mesh;
 	mesh.setMode(OF_PRIMITIVE_POINTS);
+    auto systemTime = ofGetSystemTime();
     for(int i = 0; i < PARTICLE_COUNT; i++) {
-        particles[i].addToMesh(mesh);
+        particles[i].addToMesh(mesh, systemTime);
     }
 	glPointSize(2);
 	ofPushMatrix();
@@ -41,11 +42,11 @@ void testApp::drawParticles() {
 
 void testApp::updateParticles() {
     // cycle through hue every minute
-    
+    long systemTime = ofGetSystemTime();
     ofColor particleColor = getParticleColor();
     for(int i = 0; i < PARTICLE_COUNT; i++) {
         Particle::particle_state oldState = particles[i].state;
-        particles[i].update();
+        particles[i].update(systemTime);
         
         particles[i].baseColor = particleColor;
         Particle::particle_state newState = particles[i].state;

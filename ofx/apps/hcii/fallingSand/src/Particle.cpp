@@ -13,8 +13,8 @@
 #define BORN_TIMEOUT_MS 0
 
 
-void Particle::update() {
-    long aliveTime = ofGetSystemTime() - bornTime;
+void Particle::update(long systemTime) {
+    long aliveTime = systemTime - bornTime;
     switch (state) {
         case BORN:
             if(aliveTime > BORN_TIMEOUT_MS) {
@@ -39,7 +39,7 @@ void Particle::update() {
     }
 }
 
-void Particle::addToMesh(ofMesh & mesh) {
+void Particle::addToMesh(ofMesh & mesh, unsigned long long systemTime) {
     float pct;
     switch(state) {
         case INACTIVE:
@@ -49,8 +49,9 @@ void Particle::addToMesh(ofMesh & mesh) {
             mesh.addVertex(location);
             break;
         case FALLING:
-            pct = 1 - ofMap(ofGetSystemTime() - bornTime, BORN_TIMEOUT_MS, FALL_TIMEOUT_MS, 0,1,true);
-            mesh.addColor(ofColor(baseColor * pct));
+            pct = 1 - ofMap(systemTime - bornTime, BORN_TIMEOUT_MS, FALL_TIMEOUT_MS, 0,1,true);
+            curColor = baseColor * pct;
+            mesh.addColor(curColor);
             mesh.addVertex(location);
             break;
         default:

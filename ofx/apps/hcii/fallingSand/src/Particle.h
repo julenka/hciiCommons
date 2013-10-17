@@ -18,6 +18,7 @@ public:
     ofVec3f velocity;
     ofVec3f acceleration;
     ofColor baseColor;
+    ofColor curColor;
     unsigned long long bornTime;
     enum particle_state {
         INACTIVE,
@@ -27,9 +28,9 @@ public:
         PARTICLE_STATE_COUNT,
     };
     enum particle_state state;
-    void update();
+    void update(long systemTime);
     enum particle_state getState() { return state; }
-    void addToMesh(ofMesh & mesh);
+    void addToMesh(ofMesh & mesh, unsigned long long systemTime);
 };
 
 #endif /* defined(__fallingSand__Particle__) */
