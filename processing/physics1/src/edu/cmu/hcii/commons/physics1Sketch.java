@@ -51,50 +51,41 @@ public class physics1Sketch extends PApplet {
 	// three color palettes (artifact from me storing many interesting color palettes as strings in an external data file ;-)
 	String[] palettes = {
 			"-1117720,-13683658,-8410437,-9998215,-1849945,-5517090,-4250587,-14178341,-5804972,-3498634", 
-			"-67879,-9633503,-8858441,-144382,-4996094,-16604779,-588031", 
-			"-1978728,-724510,-15131349,-13932461,-4741770,-9232823,-3195858,-8989771,-2850983,-10314372"
 	};
 	int[] colorPalette;
 
 
 
 	// list to hold all the custom shapes (circles, polygons)
-	ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
+	ArrayList<SketchCircle> polygons = new ArrayList<SketchCircle>();
 
 	public void setup() {
 		System.loadLibrary("SimpleOpenNI");
 		// it's possible to customize this, for example 1920x1080
 		size(1280, 720, OPENGL);
 		context = new SimpleOpenNI(this,SimpleOpenNI.RUN_MODE_MULTI_THREADED);
-		// initialize SimpleOpenNI object
 		context.enableDepth();
-		if (!context.enableUser()) {
-			// if context.enableScene() returns false
-			// then the Kinect is not working correctly
-			// make sure the green light is blinking
-			println("Kinect not connected!"); 
-			exit();
-		} else {
-			// mirror the image to be more intuitive
-			context.setMirror(true);
-			// calculate the reScale value
-			// currently it's rescaled to fill the complete width (cuts of top-bottom)
-			// it's also possible to fill the complete height (leaves empty sides)
-			reScale = (float) width / kinectWidth;
-			// create a smaller blob image for speed and efficiency
-			blobs = createImage(kinectWidth/4, kinectHeight/4, RGB);
-			// initialize blob detection object to the blob image dimensions
-			theBlobDetection = new BlobDetection(blobs.width, blobs.height);
-			theBlobDetection.setThreshold(0.2f);
-			// initialize ToxiclibsSupport object
-			gfx = new ToxiclibsSupport(this);
-			// setup box2d, create world, set gravity
-			box2d = new PBox2D(this);
-			box2d.createWorld();
-			box2d.setGravity(0, -10);
-			// set random colors (background, blob)
-			setRandomColors(1);
-		}
+		context.enableUser();
+		// mirror the image to be more intuitive
+		context.setMirror(true);
+		// calculate the reScale value
+		// currently it's rescaled to fill the complete width (cuts of top-bottom)
+		// it's also possible to fill the complete height (leaves empty sides)
+		reScale = (float) width / kinectWidth;
+		// create a smaller blob image for speed and efficiency
+		blobs = createImage(kinectWidth/4, kinectHeight/4, RGB);
+		// initialize blob detection object to the blob image dimensions
+		theBlobDetection = new BlobDetection(blobs.width, blobs.height);
+		theBlobDetection.setThreshold(0.2f);
+		// initialize ToxiclibsSupport object
+		gfx = new ToxiclibsSupport(this);
+		// setup box2d, create world, set gravity
+		box2d = new PBox2D(this);
+		box2d.createWorld();
+		box2d.setGravity(0, -10);
+		// set random colors (background, blob)
+		setRandomColors(1);
+
 		cam = new PImage(context.userWidth(), context.userHeight(), PConstants.RGB);
 	}
 
@@ -143,8 +134,7 @@ public class physics1Sketch extends PApplet {
 	void updateAndDrawBox2D() {
 		// if frameRate is sufficient, add a polygon and a circle with a random radius
 		if (frameRate > 29) {
-			polygons.add(new CustomShape(this,kinectWidth/2, -50, -1));
-			polygons.add(new CustomShape(this,kinectWidth/2, -50, random(2.5f, 20)));
+			polygons.add(new SketchCircle(this,kinectWidth/2, -50, random(20, 40)));
 		}
 		// take one step in the box2d physics world
 		box2d.step();
@@ -161,7 +151,7 @@ public class physics1Sketch extends PApplet {
 		// display all the shapes (circles, polygons)
 		// go backwards to allow removal of shapes
 		for (int i=polygons.size()-1; i>=0; i--) {
-			CustomShape cs = polygons.get(i);
+			SketchCircle cs = polygons.get(i);
 			// if the shape is off-screen remove it (see class for more info)
 			if (cs.done()) {
 				polygons.remove(i);
@@ -189,7 +179,7 @@ public class physics1Sketch extends PApplet {
 			// set blob color to second color from palette
 			blobColor = colorPalette[1];
 			// set all shape colors randomly
-			for (CustomShape cs: polygons) { cs.col = getRandomColor(); }
+			for (SketchCircle cs: polygons) { cs.col = getRandomColor(); }
 		}
 	}
 
