@@ -54,6 +54,9 @@ public class physics1Sketch extends PApplet {
 	};
 	int[] colorPalette;
 
+	boolean useRecordedData = true;
+	String recordPath = "test1.oni";
+
 
 
 	// list to hold all the custom shapes (circles, polygons)
@@ -63,9 +66,12 @@ public class physics1Sketch extends PApplet {
 		System.loadLibrary("SimpleOpenNI");
 		// it's possible to customize this, for example 1920x1080
 		size(1280, 720, OPENGL);
-		context = new SimpleOpenNI(this,SimpleOpenNI.RUN_MODE_MULTI_THREADED);
+		if(useRecordedData) {
+			context = new SimpleOpenNI(this, recordPath);
+		} else {
+			context = new SimpleOpenNI(this,SimpleOpenNI.RUN_MODE_MULTI_THREADED);
+		}
 		context.enableDepth();
-		context.enableUser();
 		// mirror the image to be more intuitive
 		context.setMirror(true);
 		// calculate the reScale value
@@ -86,32 +92,51 @@ public class physics1Sketch extends PApplet {
 		// set random colors (background, blob)
 		setRandomColors(1);
 
-		cam = new PImage(context.userWidth(), context.userHeight(), PConstants.RGB);
+		cam = new PImage(context.depthWidth(), context.depthHeight(), PConstants.RGB);
+	}
+	public void filterPixelsWithUserData() {
+		int[] userMap = context.userMap();
+		if(userMap != null) {
+			cam.loadPixels();
+			for(int i = 0; i < userMap.length; i++) {
+				if(userMap[i] <= 0) cam.pixels[i] = 0;
+				else cam.pixels[i] = 255;
+			}
+			// mirroring doesn't work for some reason, mirror manually
+			for(int y = 0; y < cam.height; y++) {
+				for(int x = 0; x < cam.width / 2; x++) {
+					int opposite_x = cam.width - x - 1;
+					int tmp = cam.pixels[y * cam.width + opposite_x];
+					cam.pixels[y * cam.width + opposite_x] = cam.pixels[y * cam.width + x];
+					cam.pixels[y * cam.width + x] = tmp;
+				}
+			}
+			cam.updatePixels();
+		}
+	}
+	public void filterPixelsWithThreshold() {
+		int min = 300;
+		int max = 2000;
+		cam.loadPixels();
+		int[] depthMap = context.depthMap();
+		for(int i = 0; i < depthMap.length; i++) {
+			
+			if(depthMap[i] > min && depthMap[i] < max) {
+				
+				cam.pixels[i] = 255;
+			} else {
+				cam.pixels[i] = 0;
+			}
+		}
+		cam.updatePixels();
 	}
 
 	public void draw() {
 		background(bgColor);
 		// update the SimpleOpenNI object
 		context.update();
-		
-		int[] userMap = context.userMap();
-		cam.loadPixels();
-		for(int i = 0; i < userMap.length; i++) {
-			if(userMap[i] <= 0) cam.pixels[i] = 0;
-			else cam.pixels[i] = 255;
-		}
-		// mirroring doesn't work for some reason, mirror manually
-		for(int y = 0; y < cam.height; y++) {
-			for(int x = 0; x < cam.width / 2; x++) {
-				int opposite_x = cam.width - x - 1;
-				int tmp = cam.pixels[y * cam.width + opposite_x];
-				cam.pixels[y * cam.width + opposite_x] = cam.pixels[y * cam.width + x];
-				cam.pixels[y * cam.width + x] = tmp;
-			}
-		}
-		cam.updatePixels();
-		
-//		// copy the image into the smaller blob image
+		filterPixelsWithThreshold();
+		// copy the image into the smaller blob image
 		blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
 		// blur the blob image
 		blobs.filter(BLUR, 1);
@@ -129,6 +154,8 @@ public class physics1Sketch extends PApplet {
 		poly.destroyBody();
 		// set the colors randomly every 240th frame
 		setRandomColors(240);
+		image(cam, 0,0,240, 160);
+		image(context.depthImage(), 240,0,240,160);
 	}
 
 	void updateAndDrawBox2D() {
