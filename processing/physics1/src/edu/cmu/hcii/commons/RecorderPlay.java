@@ -34,7 +34,6 @@ public class RecorderPlay extends PApplet {
 		if(recordFlag == false)
 		{
 			context = new SimpleOpenNI(this,recordPath);
-
 			println("curFramePlayer: " + context.curFramePlayer());
 		}
 		else
@@ -70,18 +69,8 @@ public class RecorderPlay extends PApplet {
 		context.update(); 
 
 		background(200, 0, 0);
-
-		// draw the cam data
-		if ((context.nodes() & SimpleOpenNI.NODE_DEPTH) != 0)
-		{
-			if ((context.nodes() & SimpleOpenNI.NODE_IMAGE) != 0)
-			{
-				image(context.depthImage(), 0, 0);   
-				image(context.rgbImage(), context.depthWidth() + 10, 0);
-			}
-			else
-				image(context.depthImage(), 0, 0);
-		}
+		image(context.rgbImage(), context.depthWidth() + 10, 0);
+			image(context.depthImage(), 0, 0);
 
 		// draw timeline
 		if(recordFlag == false)
